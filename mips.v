@@ -1,8 +1,8 @@
-module mips(clk, reset);
-//main cpu module
+module mips (clk, reset);
+// main cpu module
 
-input clk;
-input reset;
+input wire clk;
+input wire reset;
 
 wire [5:0] OpCode;
 
@@ -18,6 +18,6 @@ wire Branch;
 
 datapath Datapath(clk,reset,RegDst,ALUSrc,MemToReg,RegWrite,MemRead,MemWrite,Branch,ALUOp,OpCode);
 
-control Control(OpCode,RegDst,ALUSrc,MemToReg,RegWrite,MemRead,MemWrite,Branch,ALUOp); 
+control Control(OpCode,RegDst,ALUSrc,MemToReg,RegWrite,MemRead,MemWrite,Branch,ALUOp);
 
 endmodule
