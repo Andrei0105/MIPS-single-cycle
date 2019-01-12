@@ -50,7 +50,9 @@ module Core ( // main cpu module
 
 		.memory_addr(memory_addr),
 		.memory_rden(memory_rden),
+		.memory_wren(memory_wren),
 		.memory_read_val(memory_read_val),
+		.memory_write_val(memory_write_val),
 		.memory_response(memory_response)
 	);
 
