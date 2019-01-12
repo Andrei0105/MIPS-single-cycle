@@ -1,4 +1,7 @@
-module andm ( // 1 bit and for (branch & zero)
+`ifndef __ANDM_V__
+`define __ANDM_V__
+
+module Andm ( // 1 bit and for (branch & zero)
 	input wire inA,
 	input wire inB,
 	output wire out
@@ -7,3 +10,5 @@ module andm ( // 1 bit and for (branch & zero)
 	assign out = inA & inB;
 
 endmodule
+
+`endif /*__ANDM_V__*/

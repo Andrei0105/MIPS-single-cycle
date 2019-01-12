@@ -1,4 +1,7 @@
-module control (
+`ifndef __CONTROL_V__
+`define __CONTROL_V__
+
+module Control (
 	input wire [5:0] opcode,
 	output reg RegDst,
 	output reg ALUSrc,
@@ -13,12 +16,14 @@ module control (
 	always @ (opcode)
 	begin
 		case (opcode)
-			6'b000000: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP} = 9'b100100_0_10; // r
-			6'b100011: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP} = 9'b011110_0_00; // lw
-			6'b101011: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP} = 9'bx1x001_0_00; // sw
-			6'b000100: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP} = 9'bx0x000_1_01; // beq
-			default: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP} = 9'bxxx_xxx_x_xx;
+			6'b000000: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP } = 9'b100100_0_10; // r
+			6'b100011: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP } = 9'b011110_0_00; // lw
+			6'b101011: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP } = 9'bx1x001_0_00; // sw
+			6'b000100: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP } = 9'bx0x000_1_01; // beq
+			default: { RegDst, ALUSrc, MemtoReg, RegWrite, MemRead, MemWrite, Branch, AluOP } = 9'bxxx_xxx_x_xx;
 		endcase
 	end
 
 endmodule
+
+`endif /*__CONTROL_V__*/

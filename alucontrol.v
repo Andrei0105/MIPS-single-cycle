@@ -1,4 +1,7 @@
-module alucontrol (
+`ifndef __ALUCONTROL_V__
+`define __ALUCONTROL_V__
+
+module ALUControl (
 	input wire [1:0] AluOp,
 	input wire [5:0] FnField, // for R - type instructions
 	output reg [3:0] AluCtrl
@@ -18,3 +21,5 @@ module alucontrol (
 	end
 
 endmodule
+
+`endif /*__ALUCONTROL_V__*/

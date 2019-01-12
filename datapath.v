@@ -1,50 +1,127 @@
-module datapath (clk, reset, RegDst,AluSrc,MemtoReg,RegWrite,MemRead,MemWrite,Branch,ALUOp,OpCode);
+`ifndef __DATAPATH_V__
+`define __DATAPATH_V__
 
-input wire clk;
-input wire reset;
+module Datapath (
+	input wire clk,
+	input wire reset,
+	input wire RegDst,
+	input wire ALUSrc,
+	input wire MemtoReg,
+	input wire RegWrite,
+	input wire MemRead,
+	input wire MemWrite,
+	input wire Branch,
+	input wire [1:0] ALUOp,
+	output wire [5:0] OpCode
+	);
 
-input wire RegDst,AluSrc,MemtoReg,RegWrite,MemRead,MemWrite,Branch;
+	wire [31:0] Instruction;
+	wire [3:0] ALUCtrl;
+	wire [31:0] ALUout;
+	wire Zero;
+	wire [31:0] PC_addr;
+	wire [31:0] ReadRegister1;
+	wire [31:0] ReadRegister2;
+	wire [4:0] muxinstr_out;
+	wire [31:0] muxalu_out;
+	wire [31:0] muxdata_out;
+	wire [31:0] ReadData;
+	wire [31:0] signExtend;
+	wire PCsel;
 
-wire [31:0] Instruction;
+	assign OpCode = Instruction[31:26];
 
-input wire [1:0] ALUOp;
-wire [3:0] ALUCtrl;
-wire [31:0] ALUout;
-wire Zero;
+	InstructionMemory # ( // Instruction memory
+		.S(32),
+		.L(256)
+	) _InstructionMemory (
+		.a(PC_addr[7:0]),
+		.d(Instruction)
+	);
 
-output wire [5:0] OpCode;
-assign OpCode = Instruction[31:26];
+	DataMemory # ( // Data memory
+		.S(32),
+		.L(256)
+	) _DataMemory (
+		.clk(clk),
+		.a(ALUout[7:0]),
+		.dout(ReadData),
+		.din(ReadRegister2),
+		.mread(MemRead),
+		.mwrite(MemWrite)
+	);
 
-wire [31:0] PC_adr;
+	RegisterFile _RegisterFile ( // Registers
+		.clk(clk),
+		.RegWrite(RegWrite),
+		.ra(Instruction[25:21]),
+		.rb(Instruction[20:16]),
+		.rc(muxinstr_out),
+		.da(ReadRegister1),
+		.db(ReadRegister2),
+		.dc(muxdata_out)
+	);
 
-wire [31:0] ReadRegister1;
-wire [31:0] ReadRegister2;
+	ALUControl _ALUControl ( // ALUControl
+		.AluOp(ALUOp),
+		.FnField(Instruction[5:0]),
+		.AluCtrl(ALUCtrl)
+	);
 
-wire [4:0] muxinstr_out;
-wire [31:0] muxalu_out;
-wire [31:0] muxdata_out;
+	ALU _ALU ( // ALU
+		.opA(ReadRegister1),
+		.opB(muxalu_out),
+		.ALUop(ALUCtrl),
+		.result(ALUout),
+		.zero(Zero)
+	);
 
-wire [31:0] ReadData;
+	PC _PC( // generate PC
+		.clk(clk),
+		.reset(reset),
+		.ain(signExtend),
+		.aout(PC_addr),
+		.pcsel(PCsel)
+	);
 
-wire [31:0] signExtend;
+	Andm _AndPC ( // AndPC (branch & zero)
+		.inA(Branch),
+		.inB(Zero),
+		.out(PCsel)
+	);
 
-wire PCsel;
+	SignExtend _SignExtend ( // Sign extend
+		.out(signExtend),
+		.in(Instruction[15:0])
+	);
 
-mem_async meminstr(PC_adr[7:0],Instruction); // Instruction memory
-mem_sync memdata(clk, ALUout[7:0], ReadData, ReadRegister2, MemRead, MemWrite); // Data memory
-rf registerfile(clk,RegWrite,Instruction[25:21],Instruction[20:16],muxinstr_out, ReadRegister1, ReadRegister2, muxdata_out); // Registers
+	Mux # ( // MUX for Write Register
+		.DATA_LENGTH(5)
+	) _Mux_Instruction (
+		.sel(RegDst),
+		.ina(Instruction[20:16]),
+		.inb(Instruction[15:11]),
+		.out(muxinstr_out)
+	);
 
-alucontrol AluControl(ALUOp, Instruction[5:0], ALUCtrl); // ALUControl
-alu Alu(ReadRegister1, muxalu_out, ALUCtrl, ALUout, Zero); // ALU
+	Mux # ( // MUX for ALU
+		.DATA_LENGTH(32)
+	) _MUX_ALU (
+		.sel(ALUSrc),
+		.ina(ReadRegister2),
+		.inb(signExtend),
+		.out(muxalu_out)
+	);
 
-pclogic PC(clk, reset, signExtend, PC_adr, PCsel); // generate PC
-andm andPC(Branch, Zero, PCsel); // AndPC (branch & zero)
-signextend Signextend(signExtend, Instruction[15:0]); // Sign extend
-
-mux #(5) muxinstr(RegDst, Instruction[20:16],Instruction[15:11],muxinstr_out);// MUX for Write Register
-mux #(32) muxalu(AluSrc, ReadRegister2, signExtend, muxalu_out);// MUX for ALU
-mux #(32) muxdata(MemtoReg, ALUout, ReadData, muxdata_out); // MUX for Data memory
-
-
+	Mux # ( // MUX for Data memory
+		.DATA_LENGTH(32)
+	) _MUX_Data (
+		.sel(MemtoReg),
+		.ina(ALUout),
+		.inb(ReadData),
+		.out(muxdata_out)
+	);
 
 endmodule
+
+`endif /*__DATAPATH_V__*/
