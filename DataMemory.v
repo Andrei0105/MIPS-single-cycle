@@ -5,35 +5,50 @@ module DataMemory # ( // synchronous memory with 256 32 - bit locations for data
 	parameter S = 32, // size
 	parameter L = 256 // length
 	)	(
-	input wire clk,
 	input wire [$clog2(L)-1:0] a,
-	output wire [S-1:0] dout,
+	output reg [S-1:0] dout,
 	input wire [S-1:0] din,
 	input wire mread,
 	input wire mwrite,
-	
-	output [31:0] memory_addr,
-	output memory_rden,
-	output memory_wren,
-	input [31:0] memory_read_val,
-	output [31:0] memory_write_val
+
+	output reg [31:0] memory_addr,
+	output reg memory_rden,
+	output reg memory_wren,
+	input wire [31:0] memory_read_val,
+	output reg [31:0] memory_write_val,
 	input wire memory_response
 	);
 
-	reg [S-1:0] memory[0:L-1];
-
-	assign dout = memory[a];
-
-	always @ (posedge clk)
+	always @ (a)
 	begin
-		if (mwrite == 1)
+		if (mread)
 		begin
-			memory[a] <= din;
+			memory_addr <= a;
+			memory_rden <= 1'b1;
+		end
+
+		if (mwrite)
+		begin
+			memory_addr <= a;
+			memory_wren <= 1'b1;
+			memory_write_val <= din;
 		end
 	end
 
-	initial $readmemh("memdata.dat", memory);
+	always @ (posedge memory_response)
+	begin
+		if (memory_rden)
+		begin
+			dout <= memory_read_val;
+			memory_rden <= 1'b0;
+		end
 
-endmodule
+		if (memory_wren)
+		begin
+			memory_wren <= 1'b0;
+		end
+	end
+
+	endmodule
 
 `endif /*__DATAMEMORY_V__*/

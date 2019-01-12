@@ -13,13 +13,13 @@ module Datapath (
 	input wire Branch,
 	input wire [1:0] ALUOp,
 	output wire [5:0] OpCode,
-	
-	output [31:0] memory_addr,
-	output memory_rden,
-	output memory_wren,
-	input [31:0] memory_read_val,
-	output [31:0] memory_write_val,
-	input memory_response
+
+	output wire [31:0] memory_addr,
+	output wire memory_rden,
+	output wire memory_wren,
+	input wire [31:0] memory_read_val,
+	output wire [31:0] memory_write_val,
+	input wire memory_response
 	);
 
 	wire [31:0] Instruction;
@@ -56,7 +56,6 @@ module Datapath (
 		.S(32),
 		.L(256)
 	) _DataMemory (
-		.clk(clk),
 		.a(ALUout[7:0]),
 		.dout(ReadData),
 		.din(ReadRegister2),
@@ -72,7 +71,6 @@ module Datapath (
 	);
 
 	RegisterFile _RegisterFile ( // Registers
-		.clk(clk),
 		.RegWrite(RegWrite),
 		.ra(Instruction[25:21]),
 		.rb(Instruction[20:16]),

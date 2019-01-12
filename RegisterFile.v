@@ -2,7 +2,6 @@
 `define __REGISTERFILE_V__
 
 module RegisterFile (
-	input wire clk,
 	input wire RegWrite,
 	input wire [4:0] ra, // read register 1 (instr 25 - 21)
 	input wire [4:0] rb, // read register 2 (instr 20 - 16)
@@ -17,7 +16,7 @@ module RegisterFile (
 	assign da = (ra != 0) ? memory[ra] : 0;
 	assign db = (rb != 0) ? memory[rb] : 0;
 
-	always @ (posedge clk)
+	always @ (*)
 	begin
 		if (RegWrite == 1'b1)
 		begin

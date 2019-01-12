@@ -17,12 +17,12 @@ module Core ( // main cpu module
 	input wire clk,
 	input wire reset,
 
-	output [31:0] memory_addr,
-	output memory_rden,
-	output memory_wren,
-	input [31:0] memory_read_val,
-	output [31:0] memory_write_val,
-	input memory_response
+	output wire [31:0] memory_addr,
+	output wire memory_rden,
+	output wire memory_wren,
+	input wire [31:0] memory_read_val,
+	output wire [31:0] memory_write_val,
+	input wire memory_response
 	);
 
 	wire [5:0] OpCode;
