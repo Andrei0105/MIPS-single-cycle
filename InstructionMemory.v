@@ -13,7 +13,7 @@ module InstructionMemory # ( // asynchronous memory with 256 32 - bit locations 
 
 	assign d = memory[a];
 
-	initial $readmemh("meminstr.dat", memory);
+	initial $readmemh("Code.dat", memory);
 
 endmodule
 

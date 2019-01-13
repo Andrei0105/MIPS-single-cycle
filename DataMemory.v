@@ -25,7 +25,7 @@ module DataMemory # ( // synchronous memory with 256 32 - bit locations for data
 		end
 	end
 
-	initial $readmemh("memdata.dat", memory);
+	initial $readmemh("Data.dat", memory);
 
 endmodule
 
